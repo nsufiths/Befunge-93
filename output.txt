@@ -1,1 +1,3 @@
-108
+please enter x value: 
+please enter n value: 
+Answer: 81

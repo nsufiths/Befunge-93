@@ -66,7 +66,9 @@ addToStack :: Int -> ProgramPtr -> ProgramPtr
 addToStack intElem prog = set myStack (intElem : (_myStack prog)) prog
 
 popFromStack :: ProgramPtr -> Int
-popFromStack prog = head $ view myStack prog
+popFromStack prog
+    | (view myStack prog) == [] = 0
+    | otherwise = head $ view myStack prog
 
 subPopFromStack :: ProgramPtr -> Int
 subPopFromStack prog = (view myStack prog) !! 1
