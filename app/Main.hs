@@ -30,7 +30,7 @@ data ProgramPtr = ProgramPtr {
 makeLenses ''ProgramPtr
 
 mainCycle :: ProgramPtr -> IO ()
-mainCycle prog = do
+mainCycle prog = do 
     let ffProg = saveChar prog
     myRandomNumber <- randomRIO (1, 4) :: IO Int
     let fProg = (set rnd myRandomNumber ffProg)
@@ -175,7 +175,9 @@ makeInstr ch prog
 makeInstr _ prog = prog 
 
 main = do
-    handle <- openFile "input.txt" ReadMode
+    putStrLn "Type the name of the file:"
+    whatToOpen <- getLine
+    handle <- openFile (whatToOpen) ReadMode
     contents <- hGetContents handle
     let linesOfFiles = lines contents
     let newLinesOfFiles = (map (++ (Prelude.replicate 80 ' ')) linesOfFiles) ++ (Prelude.replicate (25 - Data.Foldable.length linesOfFiles) (Prelude.replicate 80 ' '))
