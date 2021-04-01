@@ -102,10 +102,10 @@ makeInstr :: Char -> ProgramPtr -> ProgramPtr
 makeInstr ch prog
     | (view stringMode prog) == True && ch /= '"' = set myStack newStack prog
         where newStack = (ord ch) : (view myStack prog)
-makeInstr '^' prog = set direction up prog -- works
-makeInstr 'v' prog = set direction down prog -- works
-makeInstr '<' prog = set direction left prog -- works
-makeInstr '>' prog = set direction right prog -- works
+makeInstr '^' prog = set direction up prog
+makeInstr 'v' prog = set direction down prog
+makeInstr '<' prog = set direction left prog
+makeInstr '>' prog = set direction right prog
 makeInstr '_' prog = 
     if (popFromStack prog == 0) || ((view myStack prog) == [])
         then set myStack (myTail (view myStack prog)) . set direction right $ prog
@@ -143,7 +143,7 @@ makeInstr '`' prog = set myStack newStack prog
 makeInstr '.' prog = set myStack newStack . set output newOutput $ prog
     where newOutput = (view output prog) ++ (show (popFromStack prog))
           newStack = myTail $ view myStack prog
-makeInstr ',' prog = set myStack newStack . set output newOutput $ prog -- works
+makeInstr ',' prog = set myStack newStack . set output newOutput $ prog
     where newOutput = (view output prog) ++ [chr (popFromStack prog)]
           newStack = myTail $ view myStack prog
 makeInstr '?' prog = set direction randDirection prog
@@ -167,7 +167,7 @@ makeInstr ch prog
         where newStack = (operation ch subPop pop) : (Prelude.drop 2 (view myStack prog))
               subPop = subPopFromStack prog
               pop = popFromStack prog
-              operation ch a b = case ch of '+' -> a + b -- works
+              operation ch a b = case ch of '+' -> a + b
                                             '-' -> a - b
                                             '*' -> a * b
                                             '/' -> a `div` b
