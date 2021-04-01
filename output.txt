@@ -1,21 +1,5 @@
-01234567
-GOOD: , works
-GOOD: : duplicates
-GOOD: empty stack pops zero
-GOOD: 2-2 = 0
-GOOD: | works
-GOOD: 0! = 1
-GOOD: 7! = 0
-GOOD: 8*0 = 0
-GOOD: # < jumps into <
-GOOD: \ swaps
-GOOD: 01` = 0
-GOOD: 10` = 1
-GOOD: 900pg gets 9
-GOOD: p modifies space
-GOOD: wraparound works
-UNDEF: edge # skips column 80
-GOOD: Funge-93 spaces
-The Befunge-93 version of the Mycology test suite is done.
-Quitting...
-
+think of a number between 1 and 10.
+6-10 (y/n)?
+8-10 (y/n)?
+is it 6 (y/n)?
+it is 6!

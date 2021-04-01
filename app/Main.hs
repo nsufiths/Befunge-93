@@ -42,6 +42,7 @@ mainCycle prog = do
         else do 
                 if elem (view currentSymb fProg) ("&~")
                     then do 
+                            putStr (view output fProg)
                             cl <- getLine
                             let progAfterInputFromKeyboard = set board cl fProg
                             let progAfterInstruction = makeInstr (view currentSymb progAfterInputFromKeyboard) progAfterInputFromKeyboard
@@ -171,13 +172,13 @@ makeInstr ch prog
                                             '*' -> a * b
                                             '/' -> a `div` b
                                             '%' -> a `mod` b
-
 makeInstr _ prog = prog 
 
 main = do
     handle <- openFile "input.txt" ReadMode
     contents <- hGetContents handle
     let linesOfFiles = lines contents
-    let myPtr = ProgramPtr { _code = linesOfFiles, _myStack = [], _direction = (0, 1), _location = (0, 0), _stringMode = False, _currentSymb = ' ', _rnd = 0, _board = [], _output = [] }
+    let newLinesOfFiles = (map (++ (Prelude.replicate 80 ' ')) linesOfFiles) ++ (Prelude.replicate (25 - Data.Foldable.length linesOfFiles) (Prelude.replicate 80 ' '))
+    let myPtr = ProgramPtr { _code = newLinesOfFiles, _myStack = [], _direction = (0, 1), _location = (0, 0), _stringMode = False, _currentSymb = ' ', _rnd = 0, _board = [], _output = [] }
     mainCycle myPtr
     putStr "Finished!"
