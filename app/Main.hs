@@ -30,7 +30,7 @@ data ProgramPtr = ProgramPtr {
 makeLenses ''ProgramPtr
 
 mainCycle :: ProgramPtr -> IO ()
-mainCycle prog = do
+mainCycle prog = do 
     let ffProg = saveChar prog
     myRandomNumber <- randomRIO (1, 4) :: IO Int
     let fProg = (set rnd myRandomNumber ffProg)
@@ -42,6 +42,7 @@ mainCycle prog = do
         else do 
                 if elem (view currentSymb fProg) ("&~")
                     then do 
+                            putStr (view output fProg)
                             cl <- getLine
                             let progAfterInputFromKeyboard = set board cl fProg
                             let progAfterInstruction = makeInstr (view currentSymb progAfterInputFromKeyboard) progAfterInputFromKeyboard
@@ -101,10 +102,10 @@ makeInstr :: Char -> ProgramPtr -> ProgramPtr
 makeInstr ch prog
     | (view stringMode prog) == True && ch /= '"' = set myStack newStack prog
         where newStack = (ord ch) : (view myStack prog)
-makeInstr '^' prog = set direction up prog -- works
-makeInstr 'v' prog = set direction down prog -- works
-makeInstr '<' prog = set direction left prog -- works
-makeInstr '>' prog = set direction right prog -- works
+makeInstr '^' prog = set direction up prog
+makeInstr 'v' prog = set direction down prog
+makeInstr '<' prog = set direction left prog
+makeInstr '>' prog = set direction right prog
 makeInstr '_' prog = 
     if (popFromStack prog == 0) || ((view myStack prog) == [])
         then set myStack (myTail (view myStack prog)) . set direction right $ prog
@@ -142,7 +143,7 @@ makeInstr '`' prog = set myStack newStack prog
 makeInstr '.' prog = set myStack newStack . set output newOutput $ prog
     where newOutput = (view output prog) ++ (show (popFromStack prog))
           newStack = myTail $ view myStack prog
-makeInstr ',' prog = set myStack newStack . set output newOutput $ prog -- works
+makeInstr ',' prog = set myStack newStack . set output newOutput $ prog
     where newOutput = (view output prog) ++ [chr (popFromStack prog)]
           newStack = myTail $ view myStack prog
 makeInstr '?' prog = set direction randDirection prog
@@ -166,18 +167,20 @@ makeInstr ch prog
         where newStack = (operation ch subPop pop) : (Prelude.drop 2 (view myStack prog))
               subPop = subPopFromStack prog
               pop = popFromStack prog
-              operation ch a b = case ch of '+' -> a + b -- works
+              operation ch a b = case ch of '+' -> a + b
                                             '-' -> a - b
                                             '*' -> a * b
                                             '/' -> a `div` b
                                             '%' -> a `mod` b
-
 makeInstr _ prog = prog 
 
 main = do
-    handle <- openFile "input.txt" ReadMode
+    putStrLn "Type the name of the file:"
+    whatToOpen <- getLine
+    handle <- openFile (whatToOpen) ReadMode
     contents <- hGetContents handle
     let linesOfFiles = lines contents
-    let myPtr = ProgramPtr { _code = linesOfFiles, _myStack = [], _direction = (0, 1), _location = (0, 0), _stringMode = False, _currentSymb = ' ', _rnd = 0, _board = [], _output = [] }
+    let newLinesOfFiles = (map (++ (Prelude.replicate 80 ' ')) linesOfFiles) ++ (Prelude.replicate (25 - Data.Foldable.length linesOfFiles) (Prelude.replicate 80 ' '))
+    let myPtr = ProgramPtr { _code = newLinesOfFiles, _myStack = [], _direction = (0, 1), _location = (0, 0), _stringMode = False, _currentSymb = ' ', _rnd = 0, _board = [], _output = [] }
     mainCycle myPtr
     putStr "Finished!"
