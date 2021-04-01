@@ -130,7 +130,7 @@ makeInstr 'g' prog = set myStack newStack prog
     where newStack = newPop : (Prelude.drop 2 (view myStack prog))
           posY = subPopFromStack prog
           posX = popFromStack prog
-          newPop = ord ((view code prog) !! posY !! posX) -- Не уверен в позициях
+          newPop = ord ((view code prog) !! posY !! posX)
 makeInstr '!' prog = set myStack newStack prog
     where newStack
             | popFromStack prog == 0 = 1 : (myTail (view myStack prog))
