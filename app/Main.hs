@@ -65,16 +65,24 @@ mainCycle prog = do
 addToStack :: Int -> ProgramPtr -> ProgramPtr
 addToStack intElem prog = set myStack (intElem : (_myStack prog)) prog
 
+myTail :: [a] -> [a]
+myTail [] = []
+myTail list = tail list
+
 popFromStack :: ProgramPtr -> Int
 popFromStack prog
     | (view myStack prog) == [] = 0
     | otherwise = head $ view myStack prog
 
 subPopFromStack :: ProgramPtr -> Int
-subPopFromStack prog = (view myStack prog) !! 1
+subPopFromStack prog
+    | (Data.Foldable.length (view myStack prog)) <= 1 = 0
+    | otherwise = (view myStack prog) !! 1
 
 subSubPopFromStack :: ProgramPtr -> Int
-subSubPopFromStack prog = (view myStack prog) !! 2
+subSubPopFromStack prog
+    | (Data.Foldable.length (view myStack prog)) <= 2 = 0
+    | otherwise = (view myStack prog) !! 2
 
 makeStep :: ProgramPtr -> ProgramPtr
 makeStep prog = set location newLocation prog
@@ -98,20 +106,20 @@ makeInstr 'v' prog = set direction down prog -- works
 makeInstr '<' prog = set direction left prog -- works
 makeInstr '>' prog = set direction right prog -- works
 makeInstr '_' prog = 
-    if popFromStack prog == 0
-        then set myStack (tail (view myStack prog)) . set direction right $ prog
-        else set myStack (tail (view myStack prog)) . set direction left $ prog
+    if (popFromStack prog == 0) || ((view myStack prog) == [])
+        then set myStack (myTail (view myStack prog)) . set direction right $ prog
+        else set myStack (myTail (view myStack prog)) . set direction left $ prog
 makeInstr '|' prog = 
-    if popFromStack prog == 0
-        then set myStack (tail (view myStack prog)) . set direction down $ prog
-        else set myStack (tail (view myStack prog)) . set direction up $ prog
+    if (popFromStack prog == 0) || ((view myStack prog) == [])
+        then set myStack (myTail (view myStack prog)) . set direction down $ prog
+        else set myStack (myTail (view myStack prog)) . set direction up $ prog
 makeInstr '#' prog = makeStep prog
 makeInstr ':' prog = set myStack newStack prog
-    where newStack = (popFromStack prog) : (view myStack prog)
+    where newStack = (popFromStack prog) : (popFromStack prog) : (myTail (view myStack prog))
 makeInstr '\\' prog = set myStack newStack prog
     where newStack = (subPopFromStack prog) : (popFromStack prog) : (Prelude.drop 2 (view myStack prog))
 makeInstr '$' prog = set myStack newStack prog
-    where newStack = tail $ view myStack prog
+    where newStack = myTail $ view myStack prog
 makeInstr 'p' prog = set myStack newStack . set code newCode $ prog
     where newCode = (view code prog) & element posY . element posX .~ (chr asciiCode)
           newStack = Prelude.drop 3 (view myStack prog)
@@ -125,18 +133,18 @@ makeInstr 'g' prog = set myStack newStack prog
           newPop = ord ((view code prog) !! posY !! posX) -- Не уверен в позициях
 makeInstr '!' prog = set myStack newStack prog
     where newStack
-            | popFromStack prog == 0 = 1 : (tail (view myStack prog))
-            | otherwise = 0 : (tail (view myStack prog))
+            | popFromStack prog == 0 = 1 : (myTail (view myStack prog))
+            | otherwise = 0 : (myTail (view myStack prog))
 makeInstr '`' prog = set myStack newStack prog
     where newStack
-            | (subPopFromStack prog) > (popFromStack prog) = 1 : (view myStack prog)
-            | otherwise = 0 : (view myStack prog)
+            | (subPopFromStack prog) > (popFromStack prog) = 1 : (Prelude.drop 2 (view myStack prog))
+            | otherwise = 0 : (Prelude.drop 2 (view myStack prog))
 makeInstr '.' prog = set myStack newStack . set output newOutput $ prog
     where newOutput = (view output prog) ++ (show (popFromStack prog))
-          newStack = tail $ view myStack prog
+          newStack = myTail $ view myStack prog
 makeInstr ',' prog = set myStack newStack . set output newOutput $ prog -- works
     where newOutput = (view output prog) ++ [chr (popFromStack prog)]
-          newStack = tail $ view myStack prog
+          newStack = myTail $ view myStack prog
 makeInstr '?' prog = set direction randDirection prog
     where randDirection
             | (view rnd prog) == 1 = (-1,0)
