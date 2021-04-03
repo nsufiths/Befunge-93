@@ -133,10 +133,10 @@ makeInstr ',' prog = set myStack newStack . set output newOutput $ prog
           newStack = myTail $ view myStack prog
 makeInstr '?' prog = set direction randDirection prog
     where randDirection
-            | view rnd prog == 1 = (-1,0)
-            | view rnd prog == 2 = (1,0)
-            | view rnd prog == 3 = (0,1)
-            | otherwise = (0,-1)
+            | view rnd prog == 1 = up
+            | view rnd prog == 2 = down
+            | view rnd prog == 3 = right
+            | otherwise = left
 makeInstr '&' prog = set myStack newStack prog
     where newStack = (read (view board prog) :: Int) : view myStack prog
 makeInstr '~' prog = set myStack newStack prog
