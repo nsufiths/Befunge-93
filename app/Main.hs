@@ -44,20 +44,11 @@ mainCycle prog = do
                             putStrLn (view output progAfterRnd)
                             cl <- getLine
                             let progAfterInputFromKeyboard = set board cl progAfterRnd
-                            let progAfterInstruction = makeInstr (view currentSymb progAfterInputFromKeyboard) progAfterInputFromKeyboard
-                            let progStatAfterStep = makeStep progAfterInstruction
-                            putStr $ (view currentSymb progAfterInstruction) : "\n"
-                            putStrLn $ stackToString (view myStack progAfterInstruction) ++ "\n"
+                            let progStatAfterStep = makeStep $ makeInstr (view currentSymb progAfterInputFromKeyboard) progAfterInputFromKeyboard
                             mainCycle progStatAfterStep
                     else do 
-                            let progAfterInstruction = makeInstr (view currentSymb progAfterRnd) progAfterRnd
-                            let progStatAfterStep = makeStep progAfterInstruction
-                            putStr $ (view currentSymb progAfterInstruction) : "\n"
-                            putStrLn $ stackToString (view myStack progAfterInstruction) ++ "\n"
+                            let progStatAfterStep = makeStep $ makeInstr (view currentSymb progAfterRnd) progAfterRnd
                             mainCycle progStatAfterStep
-
-addToStack :: Int -> ProgramPtr -> ProgramPtr
-addToStack intElem prog = set myStack (intElem : (_myStack prog)) prog
 
 myTail :: [a] -> [a]
 myTail [] = []
