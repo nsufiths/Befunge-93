@@ -31,37 +31,30 @@ makeLenses ''ProgramPtr
 
 mainCycle :: ProgramPtr -> IO ()
 mainCycle prog = do 
-    let ffProg = saveChar prog
     myRandomNumber <- randomRIO (1, 4) :: IO Int
-    let fProg = (set rnd myRandomNumber ffProg)
-    if (view currentSymb fProg) == '@' && (view stringMode fProg) == False
+    let progAfterRnd = set rnd myRandomNumber $ saveChar prog
+    if (view currentSymb progAfterRnd) == '@' && (view stringMode progAfterRnd) == False
         then do outh <- openFile "output.txt" WriteMode
-                hPutStrLn outh (view output fProg)
+                hPutStrLn outh (view output progAfterRnd)
                 hClose outh
                 return ()
         else do 
-                if elem (view currentSymb fProg) ("&~")
+                if elem (view currentSymb progAfterRnd) ("&~")
                     then do 
-                            putStr (view output fProg)
+                            putStrLn (view output progAfterRnd)
                             cl <- getLine
-                            let progAfterInputFromKeyboard = set board cl fProg
+                            let progAfterInputFromKeyboard = set board cl progAfterRnd
                             let progAfterInstruction = makeInstr (view currentSymb progAfterInputFromKeyboard) progAfterInputFromKeyboard
-                            let progStatAfterChar = saveChar $ makeStep progAfterInstruction
-                            putChar (view currentSymb progAfterInstruction)
-                            putChar '\n'
-                            putStr $ stackToString (view myStack progAfterInstruction)
-                            putChar '\n'
-                            putChar '\n'
-                            mainCycle progStatAfterChar
+                            let progStatAfterStep = makeStep progAfterInstruction
+                            putStr $ (view currentSymb progAfterInstruction) : "\n"
+                            putStrLn $ stackToString (view myStack progAfterInstruction) ++ "\n"
+                            mainCycle progStatAfterStep
                     else do 
-                            let progAfterInstruction = makeInstr (view currentSymb fProg) fProg
-                            let progStatAfterChar = saveChar $ makeStep progAfterInstruction
-                            putChar (view currentSymb progAfterInstruction)
-                            putChar '\n'
-                            putStr $ stackToString (view myStack progAfterInstruction)
-                            putChar '\n'
-                            putChar '\n'
-                            mainCycle progStatAfterChar
+                            let progAfterInstruction = makeInstr (view currentSymb progAfterRnd) progAfterRnd
+                            let progStatAfterStep = makeStep progAfterInstruction
+                            putStr $ (view currentSymb progAfterInstruction) : "\n"
+                            putStrLn $ stackToString (view myStack progAfterInstruction) ++ "\n"
+                            mainCycle progStatAfterStep
 
 addToStack :: Int -> ProgramPtr -> ProgramPtr
 addToStack intElem prog = set myStack (intElem : (_myStack prog)) prog

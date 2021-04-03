@@ -1,6 +1,6 @@
 think of a number between 1 and 10.
 6-10 (y/n)?
 3-5 (y/n)?
-is it 1 (y/n)?
-then it is 2!
-
+3-4 (y/n)?
+is it 3 (y/n)?
+then it is 4!
