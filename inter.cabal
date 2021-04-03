@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 132b636aa6b87b0a439bd0b226953b57f3c679583ec08d3a1890c4c4ab4fd27e
+-- hash: 8c4903facdbf355b9855e9d423935aff1b40355c15572c16fcca70800e1eb772
 
 name:           inter
 version:        0.1.0.0
@@ -33,9 +33,7 @@ library
   hs-source-dirs:
       src
   build-depends:
-      array
-    , base >=4.7 && <5
-    , containers
+      base >=4.7 && <5
     , lens
     , random
   default-language: Haskell2010
@@ -48,9 +46,7 @@ executable inter-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      array
-    , base >=4.7 && <5
-    , containers
+      base >=4.7 && <5
     , inter
     , lens
     , random
@@ -65,9 +61,7 @@ test-suite inter-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      array
-    , base >=4.7 && <5
-    , containers
+      base >=4.7 && <5
     , inter
     , lens
     , random
