@@ -5,11 +5,7 @@ import Lib
 import System.Random
 import System.IO
 import Data.Char
-import Data.Sequence
-import Data.Foldable
-import Data.Array
 import Control.Lens
-import Data.IORef
 
 up = (-1, 0)
 down = (1, 0)
@@ -31,40 +27,24 @@ makeLenses ''ProgramPtr
 
 mainCycle :: ProgramPtr -> IO ()
 mainCycle prog = do 
-    let ffProg = saveChar prog
     myRandomNumber <- randomRIO (1, 4) :: IO Int
-    let fProg = (set rnd myRandomNumber ffProg)
-    if (view currentSymb fProg) == '@' && (view stringMode fProg) == False
+    let progAfterRnd = set rnd myRandomNumber $ saveChar prog
+    if (view currentSymb progAfterRnd) == '@' && (view stringMode progAfterRnd) == False
         then do outh <- openFile "output.txt" WriteMode
-                hPutStrLn outh (view output fProg)
+                hPutStrLn outh (view output progAfterRnd)
                 hClose outh
                 return ()
         else do 
-                if elem (view currentSymb fProg) ("&~")
+                if elem (view currentSymb progAfterRnd) ("&~")
                     then do 
-                            putStr (view output fProg)
+                            putStrLn (view output progAfterRnd)
                             cl <- getLine
-                            let progAfterInputFromKeyboard = set board cl fProg
-                            let progAfterInstruction = makeInstr (view currentSymb progAfterInputFromKeyboard) progAfterInputFromKeyboard
-                            let progStatAfterChar = saveChar $ makeStep progAfterInstruction
-                            putChar (view currentSymb progAfterInstruction)
-                            putChar '\n'
-                            putStr $ stackToString (view myStack progAfterInstruction)
-                            putChar '\n'
-                            putChar '\n'
-                            mainCycle progStatAfterChar
+                            let progAfterInputFromKeyboard = set board cl progAfterRnd
+                            let progStatAfterStep = makeStep $ makeInstr (view currentSymb progAfterInputFromKeyboard) progAfterInputFromKeyboard
+                            mainCycle progStatAfterStep
                     else do 
-                            let progAfterInstruction = makeInstr (view currentSymb fProg) fProg
-                            let progStatAfterChar = saveChar $ makeStep progAfterInstruction
-                            putChar (view currentSymb progAfterInstruction)
-                            putChar '\n'
-                            putStr $ stackToString (view myStack progAfterInstruction)
-                            putChar '\n'
-                            putChar '\n'
-                            mainCycle progStatAfterChar
-
-addToStack :: Int -> ProgramPtr -> ProgramPtr
-addToStack intElem prog = set myStack (intElem : (_myStack prog)) prog
+                            let progStatAfterStep = makeStep $ makeInstr (view currentSymb progAfterRnd) progAfterRnd
+                            mainCycle progStatAfterStep
 
 myTail :: [a] -> [a]
 myTail [] = []
@@ -77,12 +57,12 @@ popFromStack prog
 
 subPopFromStack :: ProgramPtr -> Int
 subPopFromStack prog
-    | (Data.Foldable.length (view myStack prog)) <= 1 = 0
+    | (length (view myStack prog)) <= 1 = 0
     | otherwise = (view myStack prog) !! 1
 
 subSubPopFromStack :: ProgramPtr -> Int
 subSubPopFromStack prog
-    | (Data.Foldable.length (view myStack prog)) <= 2 = 0
+    | (length (view myStack prog)) <= 2 = 0
     | otherwise = (view myStack prog) !! 2
 
 makeStep :: ProgramPtr -> ProgramPtr
@@ -118,17 +98,17 @@ makeInstr '#' prog = makeStep prog
 makeInstr ':' prog = set myStack newStack prog
     where newStack = (popFromStack prog) : (popFromStack prog) : (myTail (view myStack prog))
 makeInstr '\\' prog = set myStack newStack prog
-    where newStack = (subPopFromStack prog) : (popFromStack prog) : (Prelude.drop 2 (view myStack prog))
+    where newStack = (subPopFromStack prog) : (popFromStack prog) : (drop 2 (view myStack prog))
 makeInstr '$' prog = set myStack newStack prog
     where newStack = myTail $ view myStack prog
 makeInstr 'p' prog = set myStack newStack . set code newCode $ prog
     where newCode = (view code prog) & element posY . element posX .~ (chr asciiCode)
-          newStack = Prelude.drop 3 (view myStack prog)
+          newStack = drop 3 (view myStack prog)
           posY = subPopFromStack prog
           posX = popFromStack prog
           asciiCode = subSubPopFromStack prog
 makeInstr 'g' prog = set myStack newStack prog
-    where newStack = newPop : (Prelude.drop 2 (view myStack prog))
+    where newStack = newPop : (drop 2 (view myStack prog))
           posY = subPopFromStack prog
           posX = popFromStack prog
           newPop = ord ((view code prog) !! posY !! posX)
@@ -138,8 +118,8 @@ makeInstr '!' prog = set myStack newStack prog
             | otherwise = 0 : (myTail (view myStack prog))
 makeInstr '`' prog = set myStack newStack prog
     where newStack
-            | (subPopFromStack prog) > (popFromStack prog) = 1 : (Prelude.drop 2 (view myStack prog))
-            | otherwise = 0 : (Prelude.drop 2 (view myStack prog))
+            | (subPopFromStack prog) > (popFromStack prog) = 1 : (drop 2 (view myStack prog))
+            | otherwise = 0 : (drop 2 (view myStack prog))
 makeInstr '.' prog = set myStack newStack . set output newOutput $ prog
     where newOutput = (view output prog) ++ (show (popFromStack prog))
           newStack = myTail $ view myStack prog
@@ -164,7 +144,7 @@ makeInstr ch prog
         where newStack = (digitToInt ch) : (view myStack prog)
 makeInstr ch prog
     | elem ch ("+-*/%") = set myStack newStack prog
-        where newStack = (operation ch subPop pop) : (Prelude.drop 2 (view myStack prog))
+        where newStack = (operation ch subPop pop) : (drop 2 (view myStack prog))
               subPop = subPopFromStack prog
               pop = popFromStack prog
               operation ch a b = case ch of '+' -> a + b
@@ -180,7 +160,7 @@ main = do
     handle <- openFile (whatToOpen) ReadMode
     contents <- hGetContents handle
     let linesOfFiles = lines contents
-    let newLinesOfFiles = (map (++ (Prelude.replicate 80 ' ')) linesOfFiles) ++ (Prelude.replicate (25 - Data.Foldable.length linesOfFiles) (Prelude.replicate 80 ' '))
+    let newLinesOfFiles = (map (++ (replicate 80 ' ')) linesOfFiles) ++ (replicate (25 - length linesOfFiles) (replicate 80 ' '))
     let myPtr = ProgramPtr { _code = newLinesOfFiles, _myStack = [], _direction = (0, 1), _location = (0, 0), _stringMode = False, _currentSymb = ' ', _rnd = 0, _board = [], _output = [] }
     mainCycle myPtr
     putStr "Finished!"
