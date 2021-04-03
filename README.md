@@ -1,2 +1,3 @@
 # inter
-Main.hs works by itself, but I'll transfer my functions to Lib.hs sooner or later (not sure)
+There are 2 main files: main.hs and lib.hs
+Current input.txt contains a good pack of tests for my interpreter
