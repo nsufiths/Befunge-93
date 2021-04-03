@@ -87,7 +87,7 @@ saveChar prog = set currentSymb (view code prog !! posY !! posX) prog
 makeInstr :: Char -> ProgramPtr -> ProgramPtr
 makeInstr ch prog
     | view stringMode prog == True && ch /= '"' = set myStack newStack prog
-        where newStack = (ord ch) : (view myStack prog)
+        where newStack = ord ch : view myStack prog
 makeInstr '^' prog = set direction up prog
 makeInstr 'v' prog = set direction down prog
 makeInstr '<' prog = set direction left prog
@@ -102,30 +102,30 @@ makeInstr '|' prog =
         else set myStack (myTail (view myStack prog)) . set direction up $ prog
 makeInstr '#' prog = makeStep prog
 makeInstr ':' prog = set myStack newStack prog
-    where newStack = (popFromStack prog) : (popFromStack prog) : (myTail (view myStack prog))
+    where newStack = popFromStack prog : popFromStack prog : myTail (view myStack prog)
 makeInstr '\\' prog = set myStack newStack prog
-    where newStack = (subPopFromStack prog) : (popFromStack prog) : (drop 2 (view myStack prog))
+    where newStack = subPopFromStack prog : popFromStack prog : drop 2 (view myStack prog)
 makeInstr '$' prog = set myStack newStack prog
     where newStack = myTail $ view myStack prog
 makeInstr 'p' prog = set myStack newStack . set code newCode $ prog
-    where newCode = (view code prog) & element posY . element posX .~ (chr asciiCode)
+    where newCode = view code prog & element posY . element posX .~ chr asciiCode
           newStack = drop 3 (view myStack prog)
           posY = subPopFromStack prog
           posX = popFromStack prog
           asciiCode = subSubPopFromStack prog
 makeInstr 'g' prog = set myStack newStack prog
-    where newStack = newPop : (drop 2 (view myStack prog))
+    where newStack = newPop : drop 2 (view myStack prog)
           posY = subPopFromStack prog
           posX = popFromStack prog
           newPop = ord (view code prog !! posY !! posX)
 makeInstr '!' prog = set myStack newStack prog
     where newStack
-            | popFromStack prog == 0 = 1 : (myTail (view myStack prog))
-            | otherwise = 0 : (myTail (view myStack prog))
+            | popFromStack prog == 0 = 1 : myTail (view myStack prog)
+            | otherwise = 0 : myTail (view myStack prog)
 makeInstr '`' prog = set myStack newStack prog
     where newStack
-            | subPopFromStack prog > popFromStack prog = 1 : (drop 2 (view myStack prog))
-            | otherwise = 0 : (drop 2 (view myStack prog))
+            | subPopFromStack prog > popFromStack prog = 1 : drop 2 (view myStack prog)
+            | otherwise = 0 : drop 2 (view myStack prog)
 makeInstr '.' prog = set myStack newStack . set output newOutput $ prog
     where newOutput = view output prog ++ show (popFromStack prog)
           newStack = myTail $ view myStack prog
@@ -139,18 +139,18 @@ makeInstr '?' prog = set direction randDirection prog
             | view rnd prog == 3 = (0,1)
             | otherwise = (0,-1)
 makeInstr '&' prog = set myStack newStack prog
-    where newStack = (read (view board prog) :: Int) : (view myStack prog)
+    where newStack = (read (view board prog) :: Int) : view myStack prog
 makeInstr '~' prog = set myStack newStack prog
-    where newStack = (ord (head (view board prog))) : (view myStack prog)
+    where newStack = ord (head (view board prog)) : view myStack prog
 makeInstr '"' prog
     | view stringMode prog == False = set stringMode True prog
     | otherwise = set stringMode False prog
 makeInstr ch prog
     | elem ch "0123456789" = set myStack newStack prog
-        where newStack = (digitToInt ch) : (view myStack prog)
+        where newStack = digitToInt ch : view myStack prog
 makeInstr ch prog
     | elem ch "+-*/%" = set myStack newStack prog
-        where newStack = (operation ch subPop pop) : (drop 2 (view myStack prog))
+        where newStack = operation ch subPop pop : drop 2 (view myStack prog)
               subPop = subPopFromStack prog
               pop = popFromStack prog
               operation ch a b = case ch of '+' -> a + b
@@ -158,4 +158,4 @@ makeInstr ch prog
                                             '*' -> a * b
                                             '/' -> a `div` b
                                             '%' -> a `mod` b
-makeInstr _ prog = prog 
+makeInstr _ prog = prog

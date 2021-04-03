@@ -6,7 +6,7 @@ import System.IO
 main = do
     putStrLn "Type the name of the input file:"
     whatToOpen <- getLine
-    handle <- openFile (whatToOpen) ReadMode
+    handle <- openFile whatToOpen ReadMode
     contents <- hGetContents handle
     let linesOfFiles = lines contents
     let newLinesOfFiles = map (\x -> x ++ replicate (80 - length x) ' ') linesOfFiles ++ replicate (25 - length linesOfFiles) (replicate 80 ' ')
