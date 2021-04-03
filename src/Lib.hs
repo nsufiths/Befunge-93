@@ -38,22 +38,21 @@ mainCycle :: ProgramPtr -> IO ()
 mainCycle prog = do 
     myRandomNumber <- randomRIO (1, 4) :: IO Int
     let progAfterRnd = set rnd myRandomNumber $ saveChar prog
-    if view currentSymb progAfterRnd == '@' && view stringMode progAfterRnd == False
-        then do outh <- openFile "output.txt" WriteMode
-                hPutStrLn outh (view output progAfterRnd)
-                hClose outh
-                return ()
-        else do 
-                if elem (view currentSymb progAfterRnd) "&~"
-                    then do 
-                            putStrLn $ view output progAfterRnd
-                            cl <- getLine
-                            let progAfterInputFromKeyboard = set board cl progAfterRnd
-                            let progStatAfterStep = makeStep $ makeInstr (view currentSymb progAfterInputFromKeyboard) progAfterInputFromKeyboard
-                            mainCycle progStatAfterStep
-                    else do 
-                            let progStatAfterStep = makeStep $ makeInstr (view currentSymb progAfterRnd) progAfterRnd
-                            mainCycle progStatAfterStep
+    let actionChoise | view currentSymb progAfterRnd == '@' && view stringMode progAfterRnd == False = do
+                        outh <- openFile "output.txt" WriteMode
+                        hPutStrLn outh (view output progAfterRnd)
+                        hClose outh
+                        return ()
+                     | elem (view currentSymb progAfterRnd) "&~" = do
+                        putStrLn $ view output progAfterRnd
+                        cl <- getLine
+                        let progAfterInputFromKeyboard = set board cl progAfterRnd
+                        let progStatAfterStep = makeStep $ makeInstr (view currentSymb progAfterInputFromKeyboard) progAfterInputFromKeyboard
+                        mainCycle progStatAfterStep
+                     | otherwise = do
+                        let progStatAfterStep = makeStep $ makeInstr (view currentSymb progAfterRnd) progAfterRnd
+                        mainCycle progStatAfterStep
+    actionChoise
 
 myTail :: [a] -> [a]
 myTail [] = []
