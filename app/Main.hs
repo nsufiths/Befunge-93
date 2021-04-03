@@ -2,7 +2,7 @@
 module Main where
 
 import Lib
-import System.Random
+import System.Random (randomRIO)
 import System.IO
 import Data.Char
 import Control.Lens
